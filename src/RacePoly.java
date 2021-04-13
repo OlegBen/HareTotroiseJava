@@ -5,6 +5,21 @@
 import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
+import java.awt.Graphics;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+
+class RacerComparator implements Comparator<Racer> {
+
+    @Override
+    public int compare(Racer o1, Racer o2) {
+        return o1.getX() - o2.getX();
+    }
+}
 
 public class RacePoly extends JFrame
 {
@@ -74,6 +89,18 @@ public class RacePoly extends JFrame
         *          'H' or 'h', continue
         */
 
+       if (input == 't' || input == 'T') {
+           Tortoise tortoise = new Tortoise("Tortoise" + racerList.size(), START_LINE, yPos);
+           racerList.add(tortoise);
+           yPos += RACER_SPACE;
+       } else if (input == 'h' || input == 'H') {
+           Hare hare = new Hare("Hare" + racerList.size(), START_LINE, yPos);
+           racerList.add(hare);
+           yPos += RACER_SPACE;
+       } else {
+           continue;
+       }
+
        repaint( );
        input = getRacer( ); // get input from user
 
@@ -97,12 +124,14 @@ public class RacePoly extends JFrame
 
       if ( raceIsOn )
       {
-    	  /**********************/
+          for (Racer racer : racerList) {
+              racer.draw(g);
+              racer.move();
+          }
+      } else
+      {
+
       }
-      
-      else 
-       {
-       }
      }
    }
 
@@ -174,16 +203,23 @@ public class RacePoly extends JFrame
   private void reportRaceResults( )
   {
     raceIsOn = false;
-    String results = "Racer ";
-    for ( int i = 0; i < racerList.size( ); i ++ )
+    String results = "";
+    Racer[] sortedRacerList = new Racer[racerList.size()];
+
+    // Clone Racer objects from racerList
+    for (int i = 0; i < racerList.size(); i ++)
     {
-      if ( racerList.get( i ).getX( ) > finishX  )
-      {
-         results += ( i + 1 )  + ", a " + racerList.get( i ).getID( ) + ", ";
-      }
+        sortedRacerList[i] = racerList.get( i );
     }
 
-    JOptionPane.showMessageDialog( this,  results + " win(s) the race " );
+    Arrays.sort(sortedRacerList, new RacerComparator());
+
+    for ( int i = 0; i < sortedRacerList.length; i ++ )
+    {
+        results += "Racer " + ( i + 1 )  + ", a " + racerList.get( i ).getID( ) + "\n";
+    }
+
+    JOptionPane.showMessageDialog( this,  results);
 
   }
 
